@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ArgumentMetadata, BadRequestException, Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
@@ -10,7 +10,13 @@ import { OtpService } from 'src/otp/otp.service';
 import { Role } from 'src/role.enum';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements PipeTransform {
+    transform(value: any, metadata: ArgumentMetadata) {
+        // "value" is an object containing the file's attributes and metadata
+        const oneKb = 5000;
+        return value.size < oneKb;
+    }
+
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
         private jwtService: JwtService,
@@ -51,7 +57,7 @@ export class AuthService {
         if (currentUser) {
             throw new NotFoundException(`User already exists`);
         }
-        await this.userModel.create({ firstName, lastName, password: hash, phone, roles: Role.Admin })
+        await this.userModel.create({ firstName, lastName, password: hash, phone, roles: Role.User })
         await this.otpService.sendOtp(phone);
 
         return { message: 'Ro‘yxatdan o‘tdingiz. Telefon raqamga OTP yuborildi.', phone };
@@ -117,5 +123,19 @@ export class AuthService {
         } catch (error) {
             throw new BadRequestException("Invalid refresh token");
         }
+    }
+
+    async editAccount(file: Express.Multer.File, data: Partial<AuthDto>, userPayload: any) {
+        const user = await this.userModel.findOne({ phone: userPayload.phone });
+        if (!user) {
+            throw new NotFoundException('Foydalanuvchi topilmadi');
+        }
+
+        user.images = "uploads/" + file.filename;
+        user.firstName = data.firstName || user.firstName;
+        user.lastName = data.lastName || user.lastName;
+
+        await user.save();
+        return { message: 'Profil yangilandi', user };
     }
 }

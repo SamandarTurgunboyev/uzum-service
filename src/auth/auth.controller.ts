@@ -1,7 +1,10 @@
-import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'src/multer.config';
+import { AuthGuard } from './auth.guard';
 
 @ApiTags("auth")
 @ApiBearerAuth("JWT-auth")
@@ -141,5 +144,18 @@ export class AuthController {
     @Post('refresh')
     async refresh(@Body('refreshToken') refreshToken: string) {
         return this.authService.refreshTokens(refreshToken);
+    }
+
+    @Put('/update/')
+    @UseGuards(AuthGuard)
+    @UseInterceptors(FileInterceptor('images', multerConfig))
+    async updateProfile(
+        @UploadedFile() file: Express.Multer.File,
+        @Body() data: Omit<AuthDto, 'password' | 'phone'>,
+        @Req() req: Request
+    ) {
+        const userPayload = req['user'];
+        const response = await this.authService.editAccount(file, data, userPayload);
+        return response;
     }
 }

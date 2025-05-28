@@ -19,6 +19,9 @@ export class User {
     @Prop()
     password: string;
 
+    @Prop()
+    images: string
+
     @Prop({ default: false })
     isVerified: boolean
 

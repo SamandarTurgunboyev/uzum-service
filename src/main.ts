@@ -4,11 +4,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CountriesModule } from './countries/countries.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Asosiy Swagger (optional)
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('API')
     .setDescription('User APIs')
