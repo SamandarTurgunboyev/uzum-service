@@ -1,29 +1,39 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
+import { CountriesModule } from './countries/countries.module';
+import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
-  app.setGlobalPrefix("/api/v1")
+
+  // Asosiy Swagger (optional)
   const config = new DocumentBuilder()
-    .setTitle('Uzum-clone')
-    .setDescription('The Uzum-clone API description')
+    .setTitle('API')
+    .setDescription('User APIs')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
-        description: "Bu yerga JWT token kiriting"
-      },
-      "JWT-auth"
-    )
-    .addTag('uzum-clone')
+    .addBearerAuth()
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+
+  const document = SwaggerModule.createDocument(app, config, {
+    include: [AuthModule, CountriesModule],
+  });
+  SwaggerModule.setup('/api', app, document);
+
+  // ADMIN Swagger
+  const adminConfig = new DocumentBuilder()
+    .setTitle('Admin API')
+    .setDescription('Admin panel uchun API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const adminDocument = SwaggerModule.createDocument(app, adminConfig, {
+    include: [AdminModule, CountriesModule],
+  });
+
+  SwaggerModule.setup('admin-docs', app, adminDocument);
 
   await app.listen(process.env.PORT ?? 8080);
 }

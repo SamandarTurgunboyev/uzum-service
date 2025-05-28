@@ -1,25 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { AdminService } from './admin.service';
+import { AdminController } from './admin.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
+import { jwtConstants } from 'src/auth/constants';
 import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema }
+      { name: User.name, schema: UserSchema },
     ]),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: "1d" }
     }),
     OtpModule
   ],
-  providers: [AuthService],
-  controllers: [AuthController],
+  providers: [AdminService],
+  controllers: [AdminController]
 })
-export class AuthModule { }
+export class AdminModule { }

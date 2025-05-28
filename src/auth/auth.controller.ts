@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
-import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags("auth")
 @ApiBearerAuth("JWT-auth")
@@ -37,6 +37,8 @@ export class AuthController {
     async login(@Body() dto: Omit<AuthDto, "firstName" | "lastName">) {
         const data = await this.authService.login(dto)
         return {
+            message: data.message,
+            phone: data.phone,
             user: data.user,
             accessToken: data.access_token,
             refreshToken: data.refreshToken
@@ -57,28 +59,67 @@ export class AuthController {
     @ApiResponse({
         schema: {
             example: {
-                "user": {
-                    "_id": "string",
-                    "firstName": "string",
-                    "lastName": "string",
-                    "phone": "string",
-                    "password": "string",
-                    "__v": 0
-                },
-                "accessToken": "string",
-                "refreshToken": "string"
+                "message": "string",
+                "phone": "string"
             }
         }
     })
     @UsePipes(ValidationPipe)
     @Post("/register/")
     async register(@Body() dto: AuthDto) {
-        const data = await this.authService.register(dto)
-        return {
-            user: data.user,
-            accessToken: data.access_token,
-            refreshToken: data.refreshToken
+        return this.authService.register(dto);
+    }
+
+    @HttpCode(201)
+    @ApiBody({
+        schema: {
+            example: {
+                "phone": " string",
+                "otp": " string"
+            }
         }
+    })
+    @ApiResponse({
+        schema: {
+            example: {
+                "user": {
+                    "_id": "string",
+                    "firstName": "string",
+                    "lastName": "string",
+                    "phone": "string",
+                    "password": "string",
+                    "isVerified": "boolean",
+                },
+                "access_token": "string",
+                "refreshToken": "string"
+            }
+        }
+    })
+
+    @Post('/register/confirm')
+    async confirmOtp(@Body() body: { phone: string; otp: string }) {
+        return this.authService.confirmOtp(body.phone, body.otp);
+    }
+
+    @HttpCode(201)
+    @ApiBody({
+        schema: {
+            example: {
+                "phone": "string"
+            }
+        }
+    })
+    @ApiResponse({
+        schema: {
+            example: {
+                "message": "string",
+                "phone": "string"
+            }
+        }
+    })
+    @Post('/register/resend-otp')
+    async resendOtp(@Body('phone') phone: string) {
+        return this.authService.resendOtp(phone);
     }
 
     @HttpCode(200)

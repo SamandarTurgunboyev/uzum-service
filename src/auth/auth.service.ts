@@ -6,12 +6,15 @@ import { AuthDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
+import { OtpService } from 'src/otp/otp.service';
+import { Role } from 'src/role.enum';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private otpService: OtpService
     ) { }
 
     async login(dto: Omit<AuthDto, "firstName" | "lastName">) {
@@ -23,6 +26,12 @@ export class AuthService {
         if (!isMatch) {
             throw new BadRequestException("Password is incorrect")
         }
+
+        if (!user.isVerified) {
+            await this.otpService.sendOtp(user.phone);
+            return { message: 'Ro‘yxatdan o‘tdingiz. Telefon raqamga OTP yuborildi.', phone: user.phone };
+        }
+
         const payload = { firstName: user.firstName, lastName: user.lastName, phone: user.phone };
         const access_token = await this.jwtService.signAsync(payload)
         const refreshToken = await this.jwtService.signAsync(payload, { secret: jwtConstants.refreshSecret, expiresIn: '7d' });
@@ -42,17 +51,42 @@ export class AuthService {
         if (currentUser) {
             throw new NotFoundException(`User already exists`);
         }
-        const user = await this.userModel.create({ firstName, lastName, password: hash, phone })
-        const payload = { firstName: user.firstName, lastName: user.lastName, phone: user.phone };
+        await this.userModel.create({ firstName, lastName, password: hash, phone, roles: Role.Admin })
+        await this.otpService.sendOtp(phone);
+
+        return { message: 'Ro‘yxatdan o‘tdingiz. Telefon raqamga OTP yuborildi.', phone };
+    }
+
+    async confirmOtp(phone: string, otp: string) {
+        const isValidOtp = await this.otpService.verifyOtp(phone, otp);
+        if (!isValidOtp) {
+            throw new BadRequestException('Noto‘g‘ri yoki muddati o‘tgan OTP');
+        }
+
+        const user = await this.userModel.findOne({ phone })
+        const payload = { firstName: user?.firstName, lastName: user?.lastName, phone: user?.phone };
         const access_token = await this.jwtService.signAsync(payload)
         const refreshToken = await this.jwtService.signAsync(payload, { secret: jwtConstants.refreshSecret, expiresIn: '7d' });
-
+        // Update user as verified
+        await this.userModel.findOneAndUpdate({ phone }, { isVerified: true }, { new: true });
 
         return {
             user,
             access_token,
             refreshToken
+        };
+    }
+
+    async resendOtp(phone: string) {
+        const user = await this.userModel.findOne({ phone });
+        if (!user) {
+            throw new NotFoundException('Foydalanuvchi topilmadi');
         }
+        if (user.isVerified) {
+            return { message: 'Foydalanuvchi allaqachon tasdiqlangan' };
+        }
+        await this.otpService.sendOtp(phone);
+        return { message: 'Yangi OTP yuborildi', phone };
     }
 
     async refreshTokens(refreshToken: string) {
