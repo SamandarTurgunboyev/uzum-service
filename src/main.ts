@@ -18,7 +18,7 @@ async function bootstrap() {
         bearerFormat: "JWT",
         description: "Bu yerga JWT token kiriting"
       },
-      "JWT-auth" // Shu nomni ishlatamiz
+      "JWT-auth"
     )
     .addTag('uzum-clone')
     .build();
