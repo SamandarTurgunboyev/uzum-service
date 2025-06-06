@@ -1,32 +1,33 @@
-
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
 import { Role } from 'src/role.enum';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Product } from './product.schema';
 
-export type UserDocument = HydratedDocument<User>;
-
-@Schema()
+@Entity()
 export class User {
-    @Prop()
-    firstName: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Prop()
-    lastName: string;
+  @Column({ type: 'varchar', nullable: false })
+  firstName: string;
 
-    @Prop()
-    phone: string;
+  @Column({ type: 'varchar', nullable: false })
+  lastName: string;
 
-    @Prop()
-    password: string;
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  phone: string;
 
-    @Prop()
-    images: string
+  @Column({ type: 'varchar', nullable: false })
+  password: string;
 
-    @Prop({ default: false })
-    isVerified: boolean
+  @Column({ type: 'varchar', nullable: true })
+  images: string;
 
-    @Prop({ default: Role.User })
-    roles: string
+  @Column({ default: false, type: 'boolean' })
+  isVerified: boolean;
+
+  @Column({ default: Role.User, type: 'varchar' })
+  roles: string;
+
+  @OneToMany(() => Product, (product) => product.user)
+  products: Product[];
 }
-
-export const UserSchema = SchemaFactory.createForClass(User);

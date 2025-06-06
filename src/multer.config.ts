@@ -9,5 +9,5 @@ export const multerConfig = {
             cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
         },
     }),
-    limits: { fileSize: 5 * 1024 * 1024 }, // Maksimal file size 5MB
+    limits: { fileSize: 10 * 1024 * 1024 }, // Maksimal file size 10MB
 };

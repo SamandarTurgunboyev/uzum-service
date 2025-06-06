@@ -1,10 +1,11 @@
-import { Body, Controller, HttpCode, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
-import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/multer.config';
 import { AuthGuard } from './auth.guard';
+import { MESSAGES } from '@nestjs/core/constants';
 
 @ApiTags("auth")
 @ApiBearerAuth("JWT-auth")
@@ -24,15 +25,17 @@ export class AuthController {
     @ApiResponse({
         schema: {
             example: {
-                "user": {
-                    "_id": "string",
-                    "firstName": "string",
-                    "lastName": "string",
-                    "phone": "string",
-                    "password": "string",
+                user: {
+                    firstName: "string",
+                    lastName: "string",
+                    phone: "string",
+                    images: "string",
+                    isVerified: "string",
+                    roles: "string",
+                    _id: "string",
                 },
-                "accessToken": "string",
-                "refreshToken": "string"
+                accessToken: "string",
+                refreshToken: "string"
             }
         }
     })
@@ -40,8 +43,6 @@ export class AuthController {
     async login(@Body() dto: Omit<AuthDto, "firstName" | "lastName">) {
         const data = await this.authService.login(dto)
         return {
-            message: data.message,
-            phone: data.phone,
             user: data.user,
             accessToken: data.access_token,
             refreshToken: data.refreshToken
@@ -85,16 +86,17 @@ export class AuthController {
     @ApiResponse({
         schema: {
             example: {
-                "user": {
-                    "_id": "string",
-                    "firstName": "string",
-                    "lastName": "string",
-                    "phone": "string",
-                    "password": "string",
-                    "isVerified": "boolean",
+                user: {
+                    _id: "string",
+                    firstName: "string",
+                    lastName: "string",
+                    phone: "string",
+                    images: "string",
+                    isVerified: "string",
+                    roles: "string"
                 },
-                "access_token": "string",
-                "refreshToken": "string"
+                access_token: "string",
+                refreshToken: "string"
             }
         }
     })
@@ -148,6 +150,27 @@ export class AuthController {
 
     @Put('/update/')
     @UseGuards(AuthGuard)
+    @ApiBody({
+        schema: {
+            example: {
+                firstName: "string",
+                lastName: "string",
+                images: "File"
+            }
+        }
+    })
+    @ApiResponse({
+        schema: {
+            example: {
+                firstName: "string",
+                lastName: "string",
+                phone: "string",
+                images: "string",
+                isVerified: "string",
+                roles: "string"
+            }
+        }
+    })
     @UseInterceptors(FileInterceptor('images', multerConfig))
     async updateProfile(
         @UploadedFile() file: Express.Multer.File,
@@ -157,5 +180,107 @@ export class AuthController {
         const userPayload = req['user'];
         const response = await this.authService.editAccount(file, data, userPayload);
         return response;
+    }
+
+
+    @Get("/profile/")
+    @ApiResponse({
+        schema: {
+            example: {
+                firstName: "string",
+                lastName: "string",
+                phone: "string",
+                images: "string",
+                isVerified: "string",
+                roles: "string",
+                _id: "string"
+            }
+        }
+    })
+    @UseGuards(AuthGuard)
+    async myProfile(@Req() req: Request) {
+        const userPayload = req['user'];
+        const response = await this.authService.myProfile(userPayload);
+        return response;
+    }
+
+    @Post("/forget-password")
+    @ApiBody({
+        schema: {
+            example: {
+                phone: "string"
+            }
+        }
+    })
+    @ApiResponse({
+        schema: {
+            example: {
+                message: "string"
+            }
+        }
+    })
+    async forgetPassword(@Body("phone") phone: string) {
+        const data = await this.authService.forgetPassword(phone)
+        return data
+    }
+
+    @Post("/forget-password/confirm")
+    @ApiBody({
+        schema: {
+            example: {
+                phone: "string",
+                otp: "string"
+            }
+        }
+    })
+    @ApiResponse({
+        schema: {
+            example: {
+                accessToken: "string",
+                refreshToken: "string"
+            }
+        }
+    })
+    async forgetPasswordConfirn(@Body() body: { phone: string, otp: string }) {
+        const data = await this.authService.forgetPasswordConfirm(body.phone, body.otp)
+        return {
+            accessToken: data.access_token,
+            refreshToken: data.refreshToken
+        }
+    }
+
+    @Post("/forget-password/newPasword/")
+    @ApiBody({
+        schema: {
+            example: {
+                token: "string",
+                new_password: "string",
+                new_password_confirm: "string"
+            }
+        }
+    })
+    @ApiResponse({
+        schema: {
+            example: {
+                user: {
+                    firstName: "string",
+                    lastName: "string",
+                    phone: "string",
+                    images: "string",
+                    isVerified: "string",
+                    roles: "string"
+                },
+                accessToken: "string",
+                refreshToken: "string"
+            }
+        }
+    })
+    async newPassword(@Body() body: { token: string, new_password: string, new_password_confirm: string }) {
+        const data = await this.authService.newPassword(body.token, body.new_password, body.new_password_confirm)
+        return {
+            user: data.user,
+            accessToken: data.access_token,
+            refreshToken: data.refreshToken
+        }
     }
 }

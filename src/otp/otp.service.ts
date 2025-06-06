@@ -1,38 +1,51 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Otp, OtpDocument } from 'src/schemas/otp.schema';
+import { Otp } from 'src/schemas/otp.schema';
 import * as bcrypt from 'bcrypt';
+import { Cron } from '@nestjs/schedule';
+import { LessThan, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OtpService {
-    constructor(@InjectModel(Otp.name) private otpModel: Model<OtpDocument>) { }
+  constructor(
+    @InjectRepository(Otp)
+    private otpRepository: Repository<Otp>,
+  ) {}
 
-    async sendOtp(phone: string) {
-        // Tekshirish: eski OTP mavjudmi va muddati o‘tmaganmi
-        const existingOtp = await this.otpModel.findOne({ phone });
+  @Cron('*/1 * * * *')
+  async handleOtpCleanup() {
+    const expiredTime = new Date(Date.now() - 5 * 60 * 1000); // 5 daqiqa oldin
+    const deleted = await this.otpRepository.delete({
+      createdAt: LessThan(expiredTime),
+    });
+    console.log(`OTP tozalandi: ${deleted.affected} ta yozuv`);
+  }
+  async sendOtp(phone: string) {
+    await this.otpRepository.delete({ phone });
 
-        // Yangi OTP generatsiya
-        // const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpCode = "1111";
-        const hash = await bcrypt.hash(otpCode, 10);
+    const otpCode = '1111';
+    const hash = await bcrypt.hash(otpCode, 10);
 
-        await this.otpModel.create({
-            phone,
-            otp: hash
-        });
+    const newOtp = await this.otpRepository.create({
+      phone,
+      otp: hash,
+    });
 
-        console.log(`Generated OTP for ${phone}: ${otpCode}`);
-    }
+    this.otpRepository.save(newOtp);
 
-    async verifyOtp(phone: string, otp: string) {
-        const otpData = await this.otpModel.findOne({ phone });
-        if (!otpData) throw new BadRequestException('OTP topilmadi');
+    console.log(`Generated OTP for ${phone}: ${otpCode}`);
+  }
 
-        const isMatch = await bcrypt.compare(otp, otpData.otp);
-        if (!isMatch) throw new BadRequestException('OTP noto‘g‘ri');
+  async verifyOtp(phone: string, otp: string) {
+    const otpData = await this.otpRepository.findOne({ where: { phone } });
+    if (!otpData) throw new BadRequestException('OTP topilmadi');
 
-        await this.otpModel.deleteMany({ phone }); // Tekshirildi, endi o‘chirish
-        return true;
-    }
+    const isMatch = await bcrypt.compare(otp, otpData.otp);
+    if (!isMatch) throw new BadRequestException('OTP noto‘g‘ri');
+
+    await this.otpRepository.delete({ phone });
+    return true;
+  }
 }

@@ -1,15 +1,22 @@
-import { IsNotEmpty, IsString, IsPhoneNumber, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class AuthDto {
-    @IsNotEmpty()
-    firstName: string;
-
-    @IsNotEmpty()
-    lastName: string;
-
+    @ApiProperty({ example: 'string', description: 'Foydalanuvchi telefon raqami' })
+    @IsString()
     @IsNotEmpty()
     phone: string;
 
+    @ApiProperty({ example: 'string', description: 'Foydalanuvchi paroli' })
+    @IsString()
     @IsNotEmpty()
     password: string;
+
+    @ApiProperty({ example: 'string', description: 'Foydalanuvchi ismi' })
+    @IsString()
+    firstName: string;
+
+    @ApiProperty({ example: 'string', description: 'Foydalanuvchi familiyasi' })
+    @IsString()
+    lastName: string;
 }
