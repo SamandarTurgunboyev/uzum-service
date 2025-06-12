@@ -6,8 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { CountriesModule } from './countries/countries.module';
 import { AuthModule } from './auth/auth.module';
 import { OtpModule } from './otp/otp.module';
-import { AdminModule } from './admin/admin.module';
 import { ProductModule } from './product/product.module';
+import { StoreModule } from './store/store.module';
 import DB from './data/db';
 
 @Module({
@@ -18,8 +18,8 @@ import DB from './data/db';
     CountriesModule,
     AuthModule,
     OtpModule,
-    // AdminModule,
     ProductModule,
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],

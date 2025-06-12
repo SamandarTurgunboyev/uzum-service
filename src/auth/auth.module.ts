@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
-import { OtpModule } from 'src/otp/otp.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/schemas/user.schema';
+import { OtpModule } from 'src/otp/otp.module';
 import { Product } from 'src/schemas/product.schema';
+import { User } from 'src/schemas/user.schema';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { jwtConstants } from './constants';
 
 @Module({
   imports: [

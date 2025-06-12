@@ -1,21 +1,40 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from './user.schema';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Store } from './store.schema';
+import { subSubCategory } from './subSubCategory.schema';
 
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
+  @Column({ type: 'json', nullable: true })
+  name_uz: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  name: string;
+  @Column({ type: 'json', nullable: true })
+  name_ru: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  description: string;
+  @Column({ type: 'json', nullable: true })
+  name_en: string;
+
+  @Column({ type: 'json', nullable: true })
+  description_uz: string;
+
+  @Column({ type: 'json', nullable: true })
+  description_ru: string;
+
+  @Column({ type: 'json', nullable: true })
+  description_en: string;
 
   @Column({ type: 'varchar', nullable: false })
   price: string;
 
-  @Column({ type: 'bool', default: false })
+  @Column({ default: false })
   disCount?: boolean;
 
   @Column({ type: 'varchar', nullable: true })
@@ -27,6 +46,18 @@ export class Product {
   @Column({ type: 'json', nullable: true })
   media: any[];
 
-  @ManyToOne(() => User, (user) => user.products)
-  user: User;
+  @ManyToOne(() => Store, (store) => store.products, { onDelete: 'CASCADE' })
+  store: Store;
+
+  @ManyToOne(() => subSubCategory, (sub) => sub.product, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  category: subSubCategory;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }

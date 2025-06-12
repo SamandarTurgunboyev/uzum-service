@@ -8,7 +8,7 @@ export class CountriesService {
 
     // Unique telefon kodlar bo‘yicha filterlash
     const seenPhonecodes = new Set<string>();
-    const uniqueCountries = allCountries.filter(country => {
+    const uniqueCountries = allCountries.filter((country) => {
       if (seenPhonecodes.has(country.phonecode)) {
         return false; // Bu telefon kodi oldin ishlatilgan
       } else {
@@ -21,6 +21,8 @@ export class CountriesService {
   }
 
   getCountryByCode(isoCode: string): ICountry | undefined {
-    return Country.getAllCountries().find((country) => country.isoCode === isoCode.toUpperCase());
+    return Country.getAllCountries().find(
+      (country) => country.isoCode === isoCode.toUpperCase(),
+    );
   }
 }

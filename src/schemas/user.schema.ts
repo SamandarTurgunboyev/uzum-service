@@ -1,6 +1,14 @@
 import { Role } from 'src/role.enum';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Product } from './product.schema';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Store } from './store.schema';
 
 @Entity()
 export class User {
@@ -28,6 +36,13 @@ export class User {
   @Column({ default: Role.User, type: 'varchar' })
   roles: string;
 
-  @OneToMany(() => Product, (product) => product.user)
-  products: Product[];
+  @OneToOne(() => Store, (store) => store.user)
+  @JoinColumn()
+  store: Store;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }

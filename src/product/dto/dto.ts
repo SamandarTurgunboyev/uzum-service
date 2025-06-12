@@ -1,25 +1,37 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ProductDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name_uz: string;
 
   @IsNotEmpty()
   @IsString()
-  description: string;
+  name_ru: string;
+
+  @IsNotEmpty()
+  @IsString()
+  name_en: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description_uz: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description_en: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description_ru: string;
 
   @IsNotEmpty()
   @IsString()
   price: string;
 
   @IsOptional()
+  @Transform(({ value }) => value === 'true')
   @IsBoolean()
   disCount?: boolean;
 

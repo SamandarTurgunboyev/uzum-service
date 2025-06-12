@@ -7,4 +7,4 @@ import { CountriesService } from './countries.service';
   providers: [CountriesService],
   exports: [CountriesService],
 })
-export class CountriesModule { }
+export class CountriesModule {}

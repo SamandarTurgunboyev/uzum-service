@@ -6,17 +6,15 @@ import {
   NotFoundException,
   PipeTransform,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { AuthDto } from './dto/auth.dto';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { OtpService } from 'src/otp/otp.service';
 import { Role } from 'src/role.enum';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/schemas/user.schema';
 import { Repository } from 'typeorm';
+import { jwtConstants } from './constants';
+import { AuthDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService implements PipeTransform {
@@ -205,18 +203,21 @@ export class AuthService implements PipeTransform {
   async myProfile(user) {
     const users = await this.userModel.findOne({
       where: { phone: user.phone },
+      relations: ['store'],
     });
     if (!users) {
       throw new NotFoundException('Foydalanuvchi topilmadi');
     }
 
     const payload = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      images: user.images,
-      isVerified: user.isVerified,
-      roles: user.roles,
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      phone: users.phone,
+      images: users.images,
+      isVerified: users.isVerified,
+      roles: users.roles,
+      store: users.store,
     };
 
     return {
