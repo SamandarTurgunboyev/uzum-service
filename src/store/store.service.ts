@@ -36,21 +36,21 @@ export class StoreService {
         addres: data.address,
         store_name: data.store_name,
         user: user,
-        banner: banner.filename,
+        banner: 'uploads/' + banner.filename,
       });
 
-      const savedStore = await this.storeModel.save(newStore);
+      await this.storeModel.save(newStore);
       user.roles = Role.SELLER;
-      user.store = savedStore;
+      user.store = newStore;
       await this.userModel.save(user);
 
       return {
-        data: {
-          id: savedStore.id,
-          banner: savedStore.banner,
-          store_name: savedStore.store_name,
-          userId: savedStore.user.id,
-        },
+        id: newStore.id,
+        store_name: newStore.store_name,
+        addres: newStore.addres,
+        banner: newStore.banner,
+        createdAt: newStore.createdAt,
+        updateAt: newStore.updateAt,
       };
     } catch (error) {
       console.error('Store yaratishda xatolik:', error.message);

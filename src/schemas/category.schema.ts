@@ -19,6 +19,9 @@ export class Category {
   @OneToMany(() => SubCategory, (sub) => sub.category, { onDelete: 'CASCADE' })
   subCategories: SubCategory[];
 
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  slug: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

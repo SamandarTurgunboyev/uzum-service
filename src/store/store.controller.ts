@@ -8,13 +8,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { multerConfig } from 'src/multer.config';
 import { StoreDto } from './dto/store.dto';
 import { StoreService } from './store.service';
 
 @Controller('store')
+@ApiTags('Auth')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
@@ -32,7 +33,8 @@ export class StoreController {
         store_name: 'string',
         addres: 'string',
         banner: 'string',
-        userId: 'number',
+        createdAt: 'string',
+        updateAt: 'string',
       },
     },
   })

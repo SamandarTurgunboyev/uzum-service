@@ -15,10 +15,15 @@ export class SubCategory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   name: string;
 
-  @ManyToOne(() => Category, (category) => category.subCategories)
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  slug: string;
+
+  @ManyToOne(() => Category, (category) => category.subCategories, {
+    nullable: false,
+  })
   category: Category;
 
   @OneToMany(() => subSubCategory, (sub) => sub.subCategory, {

@@ -1,7 +1,10 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Brand } from 'src/schemas/brand.schema';
 import { Category } from 'src/schemas/category.schema';
+import { Favorite } from 'src/schemas/favorite';
 import { Otp } from 'src/schemas/otp.schema';
 import { Product } from 'src/schemas/product.schema';
+import { Rating } from 'src/schemas/rating.schema';
 import { Store } from 'src/schemas/store.schema';
 import { SubCategory } from 'src/schemas/subCategory.schema';
 import { subSubCategory } from 'src/schemas/subSubCategory.schema';
@@ -14,7 +17,18 @@ const DB = TypeOrmModule.forRoot({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || '0515',
   database: process.env.DB_BASE || 'uzum',
-  entities: [User, Otp, Product, Category, SubCategory, subSubCategory, Store],
+  entities: [
+    User,
+    Otp,
+    Product,
+    Category,
+    SubCategory,
+    subSubCategory,
+    Store,
+    Favorite,
+    Brand,
+    Rating,
+  ],
   synchronize: true,
 });
 

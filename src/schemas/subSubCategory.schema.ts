@@ -15,13 +15,17 @@ export class subSubCategory {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   name: string;
 
   @ManyToOne(() => SubCategory, (sub) => sub.subSubCategories, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   subCategory: SubCategory;
+
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  slug: string;
 
   @OneToMany(() => Product, (pro) => pro.category)
   product: Product[];

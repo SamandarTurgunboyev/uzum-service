@@ -30,6 +30,14 @@ export class ProductDto {
   @IsString()
   price: string;
 
+  @IsNotEmpty()
+  @IsString()
+  brandId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  categoryId: string;
+
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   @IsBoolean()

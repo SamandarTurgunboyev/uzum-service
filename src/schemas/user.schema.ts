@@ -4,10 +4,13 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Favorite } from './favorite';
+import { Rating } from './rating.schema';
 import { Store } from './store.schema';
 
 @Entity()
@@ -40,9 +43,15 @@ export class User {
   @JoinColumn()
   store: Store;
 
+  @OneToMany(() => Rating, (ra) => ra.user)
+  ratings: Rating[];
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updateAt: Date;
+
+  @OneToMany(() => Favorite, (fav) => fav.user, { onDelete: 'CASCADE' })
+  favorites: Favorite[];
 }
