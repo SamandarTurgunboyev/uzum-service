@@ -23,6 +23,12 @@ export class Store {
   addres: string;
 
   @Column({ nullable: false, type: 'varchar' })
+  longitude: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  latitude: string;
+
+  @Column({ nullable: false, type: 'varchar' })
   banner: string;
 
   @OneToOne(() => User, (user) => user.store)

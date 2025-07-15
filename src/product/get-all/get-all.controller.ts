@@ -2,6 +2,7 @@ import { Controller, Get, Headers, HttpCode, Query } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ApiTags } from '@nestjs/swagger';
 import { jwtConstants } from 'src/auth/constants';
+import { User } from 'src/schemas/user.schema';
 import { GetAllProductSwagger } from '../swagger/getAll.swagger';
 import { GetAllService } from './get-all.service';
 
@@ -29,14 +30,14 @@ export class GetAllController {
       category: string;
     },
   ) {
-    let userId: number | undefined = undefined;
+    let userId: User | undefined;
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       try {
         const payload = await this.jwtService.verifyAsync(token, {
           secret: jwtConstants.secret,
         });
-        userId = payload?.id;
+        userId = payload;
       } catch (error) {
         console.log('Invalid token, user anonymous');
       }

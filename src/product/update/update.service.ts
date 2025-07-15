@@ -67,7 +67,8 @@ export class UpdateService {
       product.description_uz || existingProducts.description_uz;
     existingProducts.description_en =
       product.description_en || existingProducts.description_en;
-    existingProducts.disCount = product.disCount || existingProducts.disCount;
+    existingProducts.disCount =
+      Boolean(product.disCount) || existingProducts.disCount;
     existingProducts.disPrice = product.disPrice || existingProducts.disPrice;
     existingProducts.price = product.price || existingProducts.price;
     existingProducts.banner = [

@@ -17,6 +17,9 @@ const DB = TypeOrmModule.forRoot({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || '0515',
   database: process.env.DB_BASE || 'uzum',
+  ssl: {
+    rejectUnauthorized: false,
+  },
   entities: [
     User,
     Otp,
@@ -30,6 +33,7 @@ const DB = TypeOrmModule.forRoot({
     Rating,
   ],
   synchronize: true,
+  autoLoadEntities: true,
 });
 
 export default DB;

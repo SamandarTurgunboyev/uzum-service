@@ -48,7 +48,6 @@ export class ForgetPasswordController {
       body.new_password_confirm,
     );
     return {
-      user: data.user,
       accessToken: data.access_token,
       refreshToken: data.refreshToken,
     };

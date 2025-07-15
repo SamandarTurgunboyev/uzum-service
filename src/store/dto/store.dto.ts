@@ -8,6 +8,16 @@ export class StoreDto {
   store_name: string;
 
   @ApiProperty({ example: 'string' })
+  @IsNotEmpty()
+  @IsString()
+  latitude: string;
+
+  @ApiProperty({ example: 'string' })
+  @IsNotEmpty()
+  @IsString()
+  longitude: string;
+
+  @ApiProperty({ example: 'string' })
   @IsString()
   @IsNotEmpty()
   address: string;

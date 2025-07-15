@@ -20,11 +20,11 @@ export class GetOneService {
     private readonly favModel: Repository<Favorite>,
   ) {}
 
-  async getOneProduct(lang: string, slug: string, user: User) {
+  async getOneProduct(lang: string, slug: string, user?: User) {
     let myRating;
     let rating = 1;
     let isfavourite;
-    const users = await this.userModel.findOne({ where: { id: user.id } });
+
     const product = await this.productModel.findOne({
       where: { slug },
       relations: [
@@ -36,37 +36,42 @@ export class GetOneService {
       ],
     });
 
-    if (users) {
-      const myRatings = await this.ratingModel.findOne({
-        where: { user: { id: users.id }, product: { slug: slug } },
-      });
-
-      myRating = myRatings?.rating || 1;
-
-      const ratings = await this.ratingModel.find({
-        where: { product: { slug: slug } },
-      });
-
-      if (ratings.length > 0) {
-        const total = ratings.reduce(
-          (acc, curr) => acc + Number(curr.rating),
-          0,
-        );
-        rating = parseFloat((total / ratings.length).toFixed(1));
-      }
-
-      const fav = await this.favModel.findOne({
-        where: { user: { id: users.id }, product: { slug: slug } },
-      });
-
-      isfavourite = fav ? true : false;
-    }
-
     if (!product) {
       throw new NotFoundException('Mahsulot topilmadi');
     }
 
+    if (user?.id) {
+      const users = await this.userModel.findOne({ where: { id: user.id } });
+
+      if (users) {
+        const myRatings = await this.ratingModel.findOne({
+          where: { user: { id: users.id }, product: { slug: slug } },
+        });
+
+        myRating = myRatings?.rating || 1;
+
+        const ratings = await this.ratingModel.find({
+          where: { product: { slug: slug } },
+        });
+
+        if (ratings.length > 0) {
+          const total = ratings.reduce(
+            (acc, curr) => acc + Number(curr.rating),
+            0,
+          );
+          rating = parseFloat((total / ratings.length).toFixed(1));
+        }
+
+        const fav = await this.favModel.findOne({
+          where: { user: { id: users.id }, product: { slug: slug } },
+        });
+
+        isfavourite = !!fav;
+      }
+    }
+
     const { description, name } = lang_name(lang, product);
+
     return {
       id: product.id,
       name,
@@ -82,6 +87,7 @@ export class GetOneService {
       category: product.category,
       brand: product.brand,
       myRating,
+      slug: product.slug,
       isfavourite,
       rating,
     };

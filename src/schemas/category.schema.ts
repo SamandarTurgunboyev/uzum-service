@@ -13,8 +13,14 @@ export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: false })
-  name: string;
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_uz: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_ru: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_en: string;
 
   @OneToMany(() => SubCategory, (sub) => sub.category, { onDelete: 'CASCADE' })
   subCategories: SubCategory[];

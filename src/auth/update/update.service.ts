@@ -34,6 +34,19 @@ export class UpdateService {
     }
 
     await this.userModel.save(user);
-    return { message: 'Profil yangilandi', user };
+    return {
+      message: 'Profil yangilandi',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        images: user.images,
+        isVerified: user.isVerified,
+        roles: user.roles,
+        created_at: user.createdAt,
+        update_at: user.updateAt,
+      },
+    };
   }
 }

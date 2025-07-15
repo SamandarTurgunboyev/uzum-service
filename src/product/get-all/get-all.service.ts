@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Favorite } from 'src/schemas/favorite';
 import { Product } from 'src/schemas/product.schema';
 import { Rating } from 'src/schemas/rating.schema';
+import { User } from 'src/schemas/user.schema';
 import { lang_name } from 'src/utilits/name.utilits';
 import { pages } from 'src/utilits/page.utilits';
 import { Repository } from 'typeorm';
@@ -28,7 +29,7 @@ export class GetAllService {
       brand: string;
       category: string;
     },
-    userId?: number | undefined,
+    userId: User | undefined,
   ) {
     const { offset, page, pageSize } = pages(params);
     const [products, total] = await this.productModel.findAndCount({
@@ -39,6 +40,8 @@ export class GetAllService {
     });
 
     const { max_price, min_price, category, brand } = params;
+
+    const brands = brand?.split(',').map(Number).filter(Boolean);
 
     const data = await Promise.all(
       products.map(async (product) => {
@@ -57,7 +60,7 @@ export class GetAllService {
         }
 
         const fav = await this.favoriteModel.findOne({
-          where: { user: { id: userId }, product: { id: product.id } },
+          where: { user: { id: userId?.id }, product: { id: product.id } },
         });
 
         return {
@@ -69,11 +72,12 @@ export class GetAllService {
           disPrice: product.disPrice,
           banner: product.banner,
           media: product.media,
-          isFavorite: fav ? true : false,
+          isFavorite: userId ? !!fav : false,
           createdAt: product.createdAt,
           updateAt: product.updateAt,
           brand: product.brand,
           category: product.category,
+          slug: product.slug,
           rating,
         };
       }),
@@ -83,12 +87,15 @@ export class GetAllService {
       const price = Number(pro.disCount ? pro.disPrice : pro.price);
       const min = Number(min_price);
       const max = Number(max_price);
+
       const priceFilter =
         (!min_price || price >= min) && (!max_price || price <= max);
-      const brndFilter = !brand || pro.brand.id === Number(brand);
+
+      const brandFilter = !brands?.length || brands.includes(pro.brand.id);
+
       const categoryFilter = !category || pro.category.id === Number(category);
 
-      return priceFilter && brndFilter && categoryFilter;
+      return priceFilter && brandFilter && categoryFilter;
     });
 
     return {

@@ -6,13 +6,17 @@ export function ProfileSwagger() {
     ApiResponse({
       schema: {
         example: {
-          firstName: 'string',
-          lastName: 'string',
-          phone: 'string',
-          images: 'string',
-          isVerified: 'string',
-          roles: 'string',
-          _id: 'string',
+          data: {
+            id: 'number',
+            firstName: 'string',
+            lastName: 'string',
+            phone: 'string',
+            images: 'string',
+            isVerified: 'string',
+            roles: 'string',
+            created_at: 'string',
+            update_at: 'string',
+          },
         },
       },
     }),

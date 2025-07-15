@@ -1,4 +1,4 @@
-export const lang_name = (lang?: string, model?: any) => {
+export const lang_name = (lang: string, model: any) => {
   let name: string;
   let description: string;
 
@@ -12,9 +12,12 @@ export const lang_name = (lang?: string, model?: any) => {
       description = model.description_ru;
       break;
     case 'en':
-    default:
       name = model.name_en;
       description = model.description_en;
+      break;
+    default:
+      name = model.name_uz;
+      description = model.description_uz;
   }
   return {
     name,

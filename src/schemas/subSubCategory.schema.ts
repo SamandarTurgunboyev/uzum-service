@@ -16,7 +16,13 @@ export class subSubCategory {
   id: number;
 
   @Column({ type: 'varchar', nullable: false, unique: true })
-  name: string;
+  name_uz: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_ru: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_en: string;
 
   @ManyToOne(() => SubCategory, (sub) => sub.subSubCategories, {
     onDelete: 'CASCADE',

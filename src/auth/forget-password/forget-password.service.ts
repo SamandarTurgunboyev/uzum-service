@@ -111,7 +111,6 @@ export class ForgetPasswordService {
     });
 
     return {
-      user: userDto,
       access_token: newAccessToken,
       refreshToken: newRefreshToken,
     };

@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/role.enum';
 import { Category } from 'src/schemas/category.schema';
 import { User } from 'src/schemas/user.schema';
+import { lang_name } from 'src/utilits/name.utilits';
 import { slugifyWithApostrophe } from 'src/utilits/slug.utilits';
 import { Repository } from 'typeorm';
 
@@ -19,7 +20,10 @@ export class CategoryService {
     private readonly userModel: Repository<User>,
   ) {}
 
-  async create(data: { name }, user: User) {
+  async create(
+    data: { name_ru: string; name_uz: string; name_en: string },
+    user: User,
+  ) {
     try {
       const existingUser = await this.userModel.findOne({
         where: { id: user.id },
@@ -32,14 +36,15 @@ export class CategoryService {
       if (existingUser.roles !== Role.SELLER) {
         throw new BadRequestException("Sizda bunday huquq yo'q");
       }
-
       const new_Category = await this.categoryModel.create({
-        name: data.name,
+        name_uz: data.name_uz,
+        name_ru: data.name_ru,
+        name_en: data.name_uz,
       });
 
       await this.categoryModel.save(new_Category);
 
-      new_Category.slug = `${slugifyWithApostrophe(new_Category.name)}-${new_Category.id}`;
+      new_Category.slug = `${slugifyWithApostrophe(new_Category.name_uz)}-${new_Category.id}`;
 
       await this.categoryModel.save(new_Category);
 
@@ -49,12 +54,23 @@ export class CategoryService {
     }
   }
 
-  async getCategory() {
+  async getCategory(acceptLanguage: string) {
     try {
       const data = await this.categoryModel.find();
+      const lang = data.map((cat) => {
+        const { name } = lang_name(acceptLanguage, cat);
+
+        return {
+          name: name,
+          id: cat.id,
+          created_at: cat.createdAt,
+          update_at: cat.updateAt,
+          slug: cat.slug,
+        };
+      });
 
       return {
-        data,
+        data: lang,
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Xatolik yuz berdi');

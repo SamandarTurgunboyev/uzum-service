@@ -55,14 +55,6 @@ export function ForgetNewPasswordConfirmSwagger() {
     ApiResponse({
       schema: {
         example: {
-          user: {
-            firstName: 'string',
-            lastName: 'string',
-            phone: 'string',
-            images: 'string',
-            isVerified: 'string',
-            roles: 'string',
-          },
           accessToken: 'string',
           refreshToken: 'string',
         },

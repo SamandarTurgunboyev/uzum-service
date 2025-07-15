@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Req,
   UploadedFile,
@@ -23,7 +24,13 @@ export class StoreController {
   @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
-      example: { store_name: 'string', address: 'string', banner: 'file' },
+      example: {
+        store_name: 'string',
+        address: 'string',
+        banner: 'file',
+        latitude: 'string',
+        longitude: 'string',
+      },
     },
   })
   @ApiResponse({
@@ -35,6 +42,8 @@ export class StoreController {
         banner: 'string',
         createdAt: 'string',
         updateAt: 'string',
+        latitude: 'string',
+        longitude: 'string',
       },
     },
   })
@@ -46,5 +55,12 @@ export class StoreController {
   ) {
     const user = req['user'];
     return this.storeService.createStore(store, banner, user);
+  }
+
+  @Get()
+  async getStore(@Req() req: Request) {
+    const user = req['user'];
+    const data = this.storeService.getStore(user);
+    return data;
   }
 }

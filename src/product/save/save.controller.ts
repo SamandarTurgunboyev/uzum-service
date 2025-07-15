@@ -1,9 +1,11 @@
 import {
   Controller,
   Get,
+  Headers,
   HttpCode,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -27,8 +29,21 @@ export class SaveController {
   @HttpCode(201)
   @UseGuards(AuthGuard)
   @Get()
-  async getSaveProduct(@Req() req: Request) {
+  async getSaveProduct(
+    @Req() req: Request,
+    @Query()
+    query: {
+      page: string;
+      page_size: string;
+    },
+    @Headers('Accept-Language') acceptLanguage: string,
+  ) {
     const user = req['user'];
-    return this.productService.getSaveProduct(user);
+    const data = await this.productService.getSaveProduct(
+      user,
+      acceptLanguage,
+      query,
+    );
+    return { data };
   }
 }

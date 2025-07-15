@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBody, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { SubCategoryService } from './sub-category.service';
 
@@ -12,7 +21,9 @@ export class SubCategoryController {
   @ApiBody({
     schema: {
       example: {
-        name: 'string',
+        name_uz: 'string',
+        name_ru: 'string',
+        name_en: 'string',
         id: 'CategoryId',
       },
     },
@@ -21,11 +32,15 @@ export class SubCategoryController {
     schema: {
       example: {
         id: 'number',
-        name: 'string',
+        name_uz: 'string',
+        name_ru: 'string',
+        name_en: 'string',
         slug: 'string',
         category: {
           id: 'number',
-          name: 'string',
+          name_uz: 'string',
+          name_ru: 'string',
+          name_en: 'string',
           slug: 'string',
           createdAt: 'string',
           updateAt: 'string',
@@ -36,7 +51,8 @@ export class SubCategoryController {
     },
   })
   async create(
-    @Body() data: { name: string; id: string },
+    @Body()
+    data: { name_uz: string; name_ru: string; name_en: string; id: string },
     @Req() req: Request,
   ) {
     const user = req['user'];
@@ -45,6 +61,12 @@ export class SubCategoryController {
   }
 
   @Get()
+  @ApiQuery({
+    name: 'categoryId',
+    required: false,
+    type: String,
+    description: 'Filter by category ID',
+  })
   @ApiResponse({
     schema: {
       example: {
@@ -55,13 +77,25 @@ export class SubCategoryController {
             slug: 'string',
             createdAt: 'string',
             updateAt: 'string',
+            subSubCategories: [
+              {
+                id: 'number',
+                name: 'string',
+                slug: 'string',
+                createdAt: 'string',
+                updateAt: 'string',
+              },
+            ],
           },
         ],
       },
     },
   })
-  async getCategory() {
-    const data = await this.subService.getCategory();
+  async getCategory(
+    @Headers('Accept-Language') lang: string,
+    @Query('categoryId') categoryId?: string,
+  ) {
+    const data = await this.subService.getCategory(lang, categoryId);
 
     return data;
   }

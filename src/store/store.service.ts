@@ -37,6 +37,8 @@ export class StoreService {
         store_name: data.store_name,
         user: user,
         banner: 'uploads/' + banner.filename,
+        latitude: data.latitude,
+        longitude: data.longitude,
       });
 
       await this.storeModel.save(newStore);
@@ -51,10 +53,41 @@ export class StoreService {
         banner: newStore.banner,
         createdAt: newStore.createdAt,
         updateAt: newStore.updateAt,
+        latitude: newStore.latitude,
+        longitude: newStore.longitude,
       };
     } catch (error) {
       console.error('Store yaratishda xatolik:', error.message);
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  async getStore(user: User) {
+    const existingUser = await this.userModel.findOne({
+      where: { id: user.id },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    const store = await this.storeModel.findOne({
+      where: { user: { id: user.id } },
+    });
+
+    if (!store) {
+      throw new NotFoundException('Magazin topilmadi');
+    }
+
+    return {
+      name: store.store_name,
+      addres: store.addres,
+      banner: store.banner,
+      latitude: store.latitude,
+      longitude: store.longitude,
+      id: store.id,
+      createdAt: store.createdAt,
+      updateAt: store.updateAt,
+    };
   }
 }

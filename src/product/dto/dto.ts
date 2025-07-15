@@ -1,5 +1,4 @@
-import { Transform } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ProductDto {
   @IsNotEmpty()
@@ -39,9 +38,8 @@ export class ProductDto {
   categoryId: string;
 
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
-  @IsBoolean()
-  disCount?: boolean;
+  @IsString()
+  disCount: string;
 
   @IsOptional()
   @IsString()

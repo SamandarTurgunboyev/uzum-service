@@ -16,7 +16,13 @@ export class SubCategory {
   id: number;
 
   @Column({ type: 'varchar', nullable: false, unique: true })
-  name: string;
+  name_uz: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_ru: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  name_en: string;
 
   @Column({ type: 'varchar', unique: true, nullable: true })
   slug: string;

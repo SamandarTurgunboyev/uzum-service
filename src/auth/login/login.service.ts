@@ -18,10 +18,13 @@ export class LoginService {
 
   async login(dto: Omit<AuthDto, 'firstName' | 'lastName'>) {
     const user = await this.userModel.findOne({ where: { phone: dto.phone } });
-    const isMatch = await bcrypt.compare(dto.password, user?.password);
+
     if (!user) {
       throw new NotAcceptableException('User not found');
     }
+
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+
     if (!isMatch) {
       throw new NotAcceptableException('Password is incorrect');
     }

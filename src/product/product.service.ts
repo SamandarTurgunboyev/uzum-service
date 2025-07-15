@@ -77,7 +77,7 @@ export class ProductService {
         description_ru: product.description_ru,
         description_en: product.description_en,
         price: product.price,
-        disCount: Boolean(product.disCount),
+        disCount: product.disCount == 'true' ? true : false,
         disPrice: product.disPrice,
         banner: bannerPaths,
         media: mediaPaths,
@@ -87,7 +87,22 @@ export class ProductService {
       });
       newProduct.slug = `${slugify(slugifyWithApostrophe(newProduct.name_uz))}-${newProduct.id}`;
       await this.productModel.save(newProduct);
-      return newProduct;
+      return {
+        id: newProduct.id,
+        name_uz: newProduct.name_uz,
+        name_en: newProduct.name_en,
+        name_ru: newProduct.name_ru,
+        description_uz: newProduct.description_uz,
+        description_ru: newProduct.description_ru,
+        description_en: newProduct.description_en,
+        price: newProduct.price,
+        disCount: Boolean(newProduct.disCount),
+        disPrice: newProduct.disPrice,
+        banner: newProduct.banner,
+        media: newProduct.media,
+        createdAt: newProduct.createdAt,
+        updateAt: newProduct.updateAt,
+      };
     } catch (error) {
       throw new BadRequestException(error.message || 'Xatolik yuz berdi');
     }

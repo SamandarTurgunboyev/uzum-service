@@ -32,7 +32,8 @@ export class AuthService {
       images: users.images,
       isVerified: users.isVerified,
       roles: users.roles,
-      store: users.store,
+      created_at: users.createdAt,
+      update_at: users.updateAt,
     };
 
     return {

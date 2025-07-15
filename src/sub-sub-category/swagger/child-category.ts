@@ -6,7 +6,10 @@ export function ChildCategorySwagger() {
     ApiBody({
       schema: {
         example: {
-          name: 'string',
+          name_uz: 'string',
+          name_ru: 'string',
+          name_en: 'string',
+          id: 'sub-category id',
         },
       },
     }),
@@ -14,10 +17,14 @@ export function ChildCategorySwagger() {
       schema: {
         example: {
           id: 'number',
-          name: 'string',
+          name_uz: 'string',
+          name_ru: 'string',
+          name_en: 'string',
           subCategory: {
             id: 'number',
-            name: 'string',
+            name_uz: 'string',
+            name_ru: 'string',
+            name_en: 'string',
             slug: 'string',
             createdAt: 'string',
             updateAt: 'string',
